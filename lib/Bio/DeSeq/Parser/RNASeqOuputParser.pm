@@ -8,3 +8,9 @@ package Bio::DeSeq::Parser::RNASeqOutputParser;
 =cut
 
 use Moose;
+
+
+has 'samples_file'                      => ( is => 'rw', isa => 'Str', required  => 1 );
+has 'deseq_filename'               => ( is => 'rw', isa => 'Str', required  => 1 );
+
+

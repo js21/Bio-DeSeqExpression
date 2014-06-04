@@ -26,66 +26,59 @@ Required: A GO annotation file or a species name
 use Moose;
 use Getopt::Long qw(GetOptionsFromArray);
 use Bio::DeSeq;
+use Data::Dumper;
 
 has 'args'        => ( is => 'ro', isa => 'ArrayRef', required => 1 );
 has 'script_name' => ( is => 'ro', isa => 'Str',      required => 1 );
 has 'help'        => ( is => 'rw', isa => 'Bool',     default  => 0 );
 
 has 'samples_file' => ( is => 'rw', isa => 'Str' );
-has 'deseq_setup'  => ( is => 'rw', isa => 'HashRef' );
+has 'deseq_file' => (is => 'rw', isa => 'Str');
+
 
 sub BUILD {
 
     my ($self) = @_;
 
-    my ( $samples_file, $help );
+    my ( $samples_file, $deseq_file, $help );
 
     GetOptionsFromArray(
         $self->args,
         's|samples_file=s' => \$samples_file,
+		'd|deseq_file=s' => \$deseq_file,
         'h|help'           => \$help,
     );
 
     $self->samples_file($samples_file) if ( defined($samples_file) );
+	$self->deseq_file($deseq_file) if ( defined($deseq_file) );
 
 }
 
 sub run {
     my ($self) = @_;
 
-    $self->samples_file or die <<USAGE;
+    ( $self->samples_file && $self->deseq_file ) or die <<USAGE;
 	
 Usage:
-  -s|samples_file         <A list of samples to analyse and their corresponding file of expression values in the format ("filepath","condition","replicate")>
+  -s|samples_file         <A file with the list of samples to analyse and their corresponding file of expression values in the format ("filepath","condition","replicate")>
+  -d|deseq_file           <The name of the file that will be used as the DeSeq analysis input>  
   -h|help                  <print this message>
 
 
 USAGE
 
-    $self->_set_deseq();
+	my $deseq_setup = Bio::DeSeq->new(
+  	samples_file    => $self->samples_file,
+  	deseq_file  => $self->deseq_file,
+  	);
+	$deseq_setup->set_deseq();
+	#print "Hello\n";
+    print Dumper($deseq_setup);
 
 }
 
 
-sub _set_deseq {
-	
-	my ( $self ) = @_;
 
-	$self->_validate_samples_file();
-	
-	
-	return;
-}
-
-
-sub _validate_samples_file {
-	
-	my ( $self ) = @_;
-	
-	
-	
-	return;
-}
 
 
 1;
